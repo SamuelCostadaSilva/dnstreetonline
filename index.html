@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DN Street Modas</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f2f2f2;
+      color: #f2f2f2;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-position: center top;
+      background-size: cover;
+      transition: background 0.3s ease;
+    }
+
+    header {
+      background-color: #000;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    #tituloCatalogo {
+      font-size: 1.8em;
+    }
+
+    .container {
+      padding: 20px;
+      max-width: 1200px;
+      margin: auto;
+    }
+
+    h2, h3, label, p, input, select, textarea {
+      color: #fff;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .categorias, .produtos {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-top: 10px;
+    }
+
+    .categoria, .produto {
+      background: white;
+      padding: 10px;
+      border-radius: 8px;
+      width: calc(50% - 20px);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      position: relative;
+      color: #000;
+    }
+
+    .categoria {
+      cursor: pointer;
+      text-align: center;
+      position: relative;
+    }
+
+    .categoria:hover {
+      background-color: #e0f0ff;
+      transition: 0.3s;
+    }
+
+    .delete-cat, .edit-cat {
+      position: absolute;
+      top: 5px;
+      background: transparent;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .delete-cat { right: 5px; color: red; display: none; }
+    .edit-cat { right: 30px; color: orange; display: none; }
+
+    .carrossel {
+      position: relative;
+      width: 100%;
+      height: 180px;
+      overflow: hidden;
+      border-radius: 4px;
+      background: #eee;
+      pointer-events: auto;
+    }
+
+    .carrossel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+
+    .carrossel img.active {
+      display: block;
+    }
+
+    .carrossel button {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(0,0,0,0.5);
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      cursor: pointer;
+      z-index: 1;
+    }
+
+    .carrossel .prev { left: 5px; }
+    .carrossel .next { right: 5px; }
+
+    .btn-whatsapp {
+      background: #25d366;
+      color: white;
+      padding: 10px 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 8px;
+      font-size: 1em;
+    }
+
+    .promo-tag {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
+      color: white;
+      padding: 3px 8px;
+      font-size: 12px;
+      border-radius: 4px;
+    }
+
+    footer {
+      margin-top: 40px;
+      text-align: center;
+      font-size: 14px;
+      color: #fff;
+      text-shadow: 1px 1px 2px black;
+    }
+
+    #adminPanel, #adminLogin {
+      display: none;
+      margin-top: 30px;
+      background: rgba(0,0,0,0.7);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 12px rgba(0,0,0,0.5);
+    }
+
+    .admin-button {
+      background: #000;
+      color: #fff;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    input, select, textarea {
+      margin-top: 10px;
+      padding: 10px;
+      width: 100%;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      background-color: #fff;
+      color: #000;
+      font-size: 1em;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: #000;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+    }
+
+    label {
+      display: block;
+      margin-top: 12px;
+      font-size: 0.95em;
+    }
+
+    button {
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      transform: scale(1.05);
+      opacity: 0.95;
+    }
+
+    .produto {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: aparecer 0.5s ease forwards;
+    }
+
+    .produto:hover {
+      box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+      transform: translateY(-4px);
+      transition: 0.3s ease;
+    }
+
+    @keyframes aparecer {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    #loadingScreen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #000;
+      color: white;
+      font-size: 24px;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      animation: fadeOut 1s ease 5s forwards;
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+
+    .spinner {
+      border: 5px solid #fff;
+      border-top: 5px solid #25d366;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      animation: spin 1s linear infinite;
+      margin-top: 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .whatsapp-float {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #25d366;
+      color: white;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      font-size: 30px;
+      text-align: center;
+      line-height: 60px;
+      z-index: 1000;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      cursor: pointer;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+
+    @media (max-width: 768px) {
+      .categoria, .produto {
+        width: 100%;
+      }
+
+      header h1 {
+        font-size: 1.5em;
+      }
+
+      .btn-whatsapp {
+        font-size: 0.95em;
+      }
+    }
+
+    #produtosDestaqueTitulo {
+      transition: opacity 0.4s ease;
+    }
+  </style>
+</head>
+<body onload="initCatalog()">
+  <!-- Tela de carregamento -->
+  <div id="loadingScreen">
+    <div>Carregando Catálogo...</div>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- Cabeçalho -->
+  <header>
+    <h1 id="tituloCatalogo">DN Street Modas</h1>
+  </header>
+
+  <!-- Conteúdo principal -->
+  <div class="container" onclick="clicouFora(event)">
+    <h2>Categorias</h2>
+    <div class="categorias" id="categoriasContainer"></div>
+
+    <h2 id="produtosDestaqueTitulo">Produtos em Destaque</h2>
+    <div class="produtos" id="produtosContainer"></div>
+
+    <!-- Botão do Admin -->
+    <button class="admin-button" onclick="toggleAdminLogin()">Área do Administrador</button>
+
+    <!-- Login do Admin -->
+    <div id="adminLogin">
+      <h2>Login do Admin</h2>
+      <input type="email" placeholder="E-mail" id="email" />
+      <input type="password" placeholder="Senha" id="senha" />
+      <button onclick="loginAdmin()">Entrar</button>
+    </div>
+
+    <!-- Painel do Administrador -->
+    <div id="adminPanel">
+      <h2>Painel do Administrador</h2>
+
+      <label for="tituloNovo">Alterar Título do Catálogo:</label>
+      <input type="text" id="tituloNovo" placeholder="Ex: Catálogo DN Street" />
+      <button onclick="alterarTitulo()">Alterar Título</button>
+
+      <hr style="margin: 20px 0; border: 1px dashed #aaa;" />
+
+      <label for="nomeCategoria">Nova Categoria:</label>
+      <input type="text" id="nomeCategoria" placeholder="Nome da Categoria" />
+      <button onclick="addCategoria()">Adicionar Categoria</button>
+
+      <hr style="margin: 20px 0; border: 1px dashed #aaa;" />
+
+      <label for="nomeProduto">Nome do Produto:</label>
+      <input type="text" id="nomeProduto" placeholder="Nome do Produto" />
+
+      <label for="precoProduto">Preço (somente números):</label>
+      <input type="number" id="precoProduto" min="0" placeholder="Ex: 49.90" />
+
+      <label for="descricaoProduto">Descrição (opcional):</label>
+      <textarea id="descricaoProduto" placeholder="Ex: Camiseta oversized, tecido leve..."></textarea>
+
+      <label for="imgProduto">Imagens do Produto:</label>
+      <input type="file" id="imgProduto" multiple />
+
+      <label for="categoriaProduto">Categoria:</label>
+      <select id="categoriaProduto">
+        <option value="">Escolha a categoria</option>
+      </select>
+
+      <label><input type="checkbox" id="produtoPromocao" /> Produto em Promoção</label>
+
+      <button onclick="addProduto()">Adicionar Produto</button>
+
+      <hr style="margin: 20px 0; border: 1px dashed #aaa;" />
+
+      <label for="bgImage">Imagem de Fundo:</label>
+      <input type="file" id="bgImage" onchange="changeBackgroundImage()" />
+      <br /><br />
+      <button onclick="salvarTudo()">Salvar Catálogo</button>
+    </div>
+  </div>
+
+  <!-- Rodapé -->
+  <footer>
+    <p>&copy; 2025 DN Street Modas</p>
+  </footer>
+
+  <!-- Botão flutuante do WhatsApp -->
+  <a class="whatsapp-float" href="https://wa.me/27999132634" target="_blank" title="Fale conosco no WhatsApp">
+    <i class="fab fa-whatsapp"></i>
+  </a>
+<!-- Firebase compatível com GitHub Pages -->
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.11.0/firebase-firestore-compat.js"></script>
+
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyAigVxxkrN4TKyV31zR29anZoINdjB7T64",
+    authDomain: "catalogo-dnstreet.firebaseapp.com",
+    databaseURL: "https://catalogo-dnstreet-default-rtdb.firebaseio.com",
+    projectId: "catalogo-dnstreet",
+    storageBucket: "catalogo-dnstreet.appspot.com",
+    messagingSenderId: "1089905081847",
+    appId: "1:1089905081847:web:373cdbb0c0c9649a4482f2"
+  };
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  let categorias = [];
+  let produtos = [];
+  let adminLogado = false;
+
+  async function initCatalog() {
+    await carregarCategorias();
+    await carregarProdutos();
+    renderCategorias();
+    renderProdutos(produtos.filter(p => p.promo));
+    setTimeout(() => {
+      document.getElementById("loadingScreen").style.display = "none";
+    }, 5000);
+  }
+
+  async function carregarCategorias() {
+    categorias = [];
+    const snapshot = await db.collection("categorias").get();
+    snapshot.forEach(doc => categorias.push(doc.data().nome));
+  }
+
+  async function carregarProdutos() {
+    produtos = [];
+    const snapshot = await db.collection("produtos").get();
+    snapshot.forEach(doc => produtos.push({ ...doc.data(), id: doc.id }));
+  }
+
+  async function addCategoria() {
+    const nome = document.getElementById("nomeCategoria").value.trim();
+    if (nome && !categorias.includes(nome)) {
+      categorias.push(nome);
+      await db.collection("categorias").add({ nome });
+      renderCategorias();
+    }
+    document.getElementById("nomeCategoria").value = "";
+  }
+
+  async function addProduto() {
+    const nome = document.getElementById("nomeProduto").value.trim();
+    const preco = document.getElementById("precoProduto").value.trim();
+    const descricao = document.getElementById("descricaoProduto").value.trim();
+    const categoria = document.getElementById("categoriaProduto").value;
+    const promocao = document.getElementById("produtoPromocao").checked;
+    const files = document.getElementById("imgProduto").files;
+
+    if (!nome || !preco || !categoria || files.length === 0) {
+      alert("Preencha todos os campos e selecione ao menos uma imagem.");
+      return;
+    }
+
+    const imagens = [];
+    for (let i = 0; i < files.length; i++) {
+      imagens.push(URL.createObjectURL(files[i]));
+    }
+
+    const produto = { nome, preco, descricao, categoria, imagens, promo: promocao };
+    const docRef = await db.collection("produtos").add(produto);
+    produto.id = docRef.id;
+    produtos.push(produto);
+    renderProdutos(produtos.filter(p => p.promo));
+
+    document.getElementById("nomeProduto").value = "";
+    document.getElementById("precoProduto").value = "";
+    document.getElementById("descricaoProduto").value = "";
+    document.getElementById("imgProduto").value = "";
+    document.getElementById("categoriaProduto").value = "";
+    document.getElementById("produtoPromocao").checked = false;
+  }
+
+  function renderCategorias() {
+    const container = document.getElementById("categoriasContainer");
+    const select = document.getElementById("categoriaProduto");
+    container.innerHTML = "";
+    select.innerHTML = '<option value="">Escolha a categoria</option>';
+
+    categorias.forEach(async cat => {
+      const div = document.createElement("div");
+      div.className = "categoria";
+      div.innerText = cat;
+      div.onclick = (e) => {
+        e.stopPropagation();
+        document.getElementById("produtosDestaqueTitulo").style.display = "none";
+        renderProdutos(produtos.filter(p => p.categoria === cat));
+      };
+
+      if (adminLogado) {
+        const del = document.createElement("button");
+        del.className = "delete-cat";
+        del.innerText = "🗑️";
+        del.onclick = async (e) => {
+          e.stopPropagation();
+          if (confirm(`Deseja excluir a categoria "${cat}"? Isso removerá todos os produtos nela.`)) {
+            const prodSnapshot = await db.collection("produtos").where("categoria", "==", cat).get();
+            const catSnapshot = await db.collection("categorias").where("nome", "==", cat).get();
+
+            catSnapshot.forEach(async doc => await db.collection("categorias").doc(doc.id).delete());
+            prodSnapshot.forEach(async doc => await db.collection("produtos").doc(doc.id).delete());
+
+            await carregarCategorias();
+            await carregarProdutos();
+            renderCategorias();
+            renderProdutos(produtos.filter(p => p.promo));
+          }
+        };
+        del.style.display = "inline";
+        div.appendChild(del);
+      }
+
+      container.appendChild(div);
+
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.innerText = cat;
+      select.appendChild(opt);
+    });
+  }
+
+  function renderProdutos(lista = produtos) {
+    const container = document.getElementById("produtosContainer");
+    container.innerHTML = "";
+    lista.forEach(prod => {
+      const div = document.createElement("div");
+      div.className = "produto";
+
+      const carrossel = document.createElement("div");
+      carrossel.className = "carrossel";
+      const imgs = [];
+
+      prod.imagens.forEach((imgUrl, i) => {
+        const img = document.createElement("img");
+        img.src = imgUrl;
+        img.onload = () => {
+          if (i === 0) img.classList.add("active");
+        };
+        imgs.push(img);
+        carrossel.appendChild(img);
+      });
+
+      if (imgs.length > 1) {
+        const btnPrev = document.createElement("button");
+        btnPrev.className = "prev";
+        btnPrev.innerHTML = "&#8592;";
+        btnPrev.onclick = () => {
+          const current = imgs.findIndex(i => i.classList.contains("active"));
+          imgs[current].classList.remove("active");
+          const next = (current - 1 + imgs.length) % imgs.length;
+          imgs[next].classList.add("active");
+        };
+
+        const btnNext = document.createElement("button");
+        btnNext.className = "next";
+        btnNext.innerHTML = "&#8594;";
+        btnNext.onclick = () => {
+          const current = imgs.findIndex(i => i.classList.contains("active"));
+          imgs[current].classList.remove("active");
+          const next = (current + 1) % imgs.length;
+          imgs[next].classList.add("active");
+        };
+
+        carrossel.appendChild(btnPrev);
+        carrossel.appendChild(btnNext);
+      }
+
+      div.appendChild(carrossel);
+
+      if (prod.promo) {
+        const tag = document.createElement("div");
+        tag.className = "promo-tag";
+        tag.innerText = "Promoção";
+        div.appendChild(tag);
+      }
+
+      const nome = document.createElement("p");
+      nome.innerHTML = `<strong>${prod.nome}</strong>`;
+      div.appendChild(nome);
+
+      const preco = document.createElement("p");
+      preco.innerText = `R$ ${prod.preco}`;
+      div.appendChild(preco);
+
+      const btn = document.createElement("button");
+      btn.className = "btn-whatsapp";
+      btn.innerText = "Comprar pelo WhatsApp";
+      btn.onclick = () => whatsapp(prod);
+      div.appendChild(btn);
+
+      if (adminLogado) {
+        const delBtn = document.createElement("button");
+        delBtn.innerText = "Excluir";
+        delBtn.style.marginTop = "10px";
+        delBtn.style.background = "#d33";
+        delBtn.style.color = "#fff";
+        delBtn.style.padding = "6px";
+        delBtn.style.border = "none";
+        delBtn.style.borderRadius = "4px";
+        delBtn.onclick = async () => {
+          if (confirm("Excluir este produto?")) {
+            await db.collection("produtos").doc(prod.id).delete();
+            await carregarProdutos();
+            renderProdutos(produtos.filter(p => p.promo));
+          }
+        };
+        div.appendChild(delBtn);
+      }
+
+      container.appendChild(div);
+    });
+  }
+
+  function whatsapp(prod) {
+    const mensagem = `Olá! Tenho interesse no produto:\n${prod.nome}\nPreço: R$ ${prod.preco}\nCategoria: ${prod.categoria}`;
+    const url = `https://www.contate.me/5527999132634?text=${encodeURIComponent(mensagem)}`;
+    window.open(url, "_blank");
+  }
+
+  function clicouFora(e) {
+    if (!e.target.closest(".categoria")) {
+      renderProdutos(produtos.filter(p => p.promo));
+      document.getElementById("produtosDestaqueTitulo").style.display = "block";
+    }
+  }
+
+  function toggleAdminLogin() {
+    const div = document.getElementById("adminLogin");
+    div.style.display = div.style.display === "none" ? "block" : "none";
+  }
+
+  function loginAdmin() {
+    const email = document.getElementById("email").value;
+    const senha = document.getElementById("senha").value;
+    if (email === "admin@dnstreet.com" && senha === "1234") {
+      adminLogado = true;
+      document.getElementById("adminLogin").style.display = "none";
+      document.getElementById("adminPanel").style.display = "block";
+      renderCategorias();
+      renderProdutos(produtos.filter(p => p.promo));
+    } else {
+      alert("E-mail ou senha incorretos.");
+    }
+  }
+
+  function alterarTitulo() {
+    const novoTitulo = document.getElementById("tituloNovo").value.trim();
+    if (novoTitulo) {
+      document.getElementById("tituloCatalogo").innerText = novoTitulo;
+    }
+  }
+
+  function salvarTudo() {
+    alert("Alterações salvas no Firebase!");
+  }
+
+  function changeBackgroundImage() {
+    const file = document.getElementById("bgImage").files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    document.body.style.backgroundImage = `url(${url})`;
+  }
+</script>
+</body>
+</html>
